@@ -1,7 +1,7 @@
 package v3
 
 import (
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -18,7 +18,7 @@ type ExampleConfig struct {
 
 type ExampleSpec struct {
 	ExampleOne string `json:"exampleOne,omitempty"`
-	ExampleTwo int `json:"exampleOne,omitempty"`
+	ExampleTwo int    `json:"exampleOne,omitempty"`
 }
 
 type ExampleStatus struct {
