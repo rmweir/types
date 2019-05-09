@@ -34,6 +34,7 @@ var (
 		Init(rkeTypes).
 		Init(alertTypes).
 		Init(composeType).
+		Init(exampleType).
 		Init(projectCatalogTypes).
 		Init(clusterCatalogTypes).
 		Init(multiClusterAppTypes).
@@ -650,6 +651,10 @@ func alertTypes(schema *types.Schemas) *types.Schemas {
 
 func composeType(schemas *types.Schemas) *types.Schemas {
 	return schemas.MustImport(&Version, v3.ComposeConfig{})
+}
+
+func exampleType(schemas *types.Schemas) *types.Schemas {
+	return schemas.MustImport(&Version, v3.ExampleConfig{})
 }
 
 func projectCatalogTypes(schemas *types.Schemas) *types.Schemas {
