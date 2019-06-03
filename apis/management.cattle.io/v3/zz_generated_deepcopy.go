@@ -2608,6 +2608,11 @@ func (in *Feature) DeepCopyInto(out *Feature) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
 	in.ObjectMeta.DeepCopyInto(&out.ObjectMeta)
+	if in.Value != nil {
+		in, out := &in.Value, &out.Value
+		*out = new(bool)
+		**out = **in
+	}
 	return
 }
 

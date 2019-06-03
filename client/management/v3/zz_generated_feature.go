@@ -33,7 +33,7 @@ type Feature struct {
 	Removed         string            `json:"removed,omitempty" yaml:"removed,omitempty"`
 	Source          string            `json:"source,omitempty" yaml:"source,omitempty"`
 	UUID            string            `json:"uuid,omitempty" yaml:"uuid,omitempty"`
-	Value           bool              `json:"value,omitempty" yaml:"value,omitempty"`
+	Value           *bool             `json:"value,omitempty" yaml:"value,omitempty"`
 }
 
 type FeatureCollection struct {
