@@ -76,6 +76,7 @@ type Interface interface {
 	ClusterMonitorGraphsGetter
 	ProjectMonitorGraphsGetter
 	CloudCredentialsGetter
+	ClusterRandomizersGetter
 }
 
 type Clients struct {
@@ -137,6 +138,7 @@ type Clients struct {
 	ClusterMonitorGraph                     ClusterMonitorGraphClient
 	ProjectMonitorGraph                     ProjectMonitorGraphClient
 	CloudCredential                         CloudCredentialClient
+	ClusterRandomizer                       ClusterRandomizerClient
 }
 
 type Client struct {
@@ -200,6 +202,7 @@ type Client struct {
 	clusterMonitorGraphControllers                     map[string]ClusterMonitorGraphController
 	projectMonitorGraphControllers                     map[string]ProjectMonitorGraphController
 	cloudCredentialControllers                         map[string]CloudCredentialController
+	clusterRandomizerControllers                       map[string]ClusterRandomizerController
 }
 
 func Factory(ctx context.Context, config rest.Config) (context.Context, controller.Starter, error) {
@@ -403,6 +406,9 @@ func NewClientsFromInterface(iface Interface) *Clients {
 		CloudCredential: &cloudCredentialClient2{
 			iface: iface.CloudCredentials(""),
 		},
+		ClusterRandomizer: &clusterRandomizerClient2{
+			iface: iface.ClusterRandomizers(""),
+		},
 	}
 }
 
@@ -475,6 +481,7 @@ func NewForConfig(config rest.Config) (Interface, error) {
 		clusterMonitorGraphControllers:                     map[string]ClusterMonitorGraphController{},
 		projectMonitorGraphControllers:                     map[string]ProjectMonitorGraphController{},
 		cloudCredentialControllers:                         map[string]CloudCredentialController{},
+		clusterRandomizerControllers:                       map[string]ClusterRandomizerController{},
 	}, nil
 }
 
@@ -1212,6 +1219,19 @@ type CloudCredentialsGetter interface {
 func (c *Client) CloudCredentials(namespace string) CloudCredentialInterface {
 	objectClient := objectclient.NewObjectClient(namespace, c.restClient, &CloudCredentialResource, CloudCredentialGroupVersionKind, cloudCredentialFactory{})
 	return &cloudCredentialClient{
+		ns:           namespace,
+		client:       c,
+		objectClient: objectClient,
+	}
+}
+
+type ClusterRandomizersGetter interface {
+	ClusterRandomizers(namespace string) ClusterRandomizerInterface
+}
+
+func (c *Client) ClusterRandomizers(namespace string) ClusterRandomizerInterface {
+	objectClient := objectclient.NewObjectClient(namespace, c.restClient, &ClusterRandomizerResource, ClusterRandomizerGroupVersionKind, clusterRandomizerFactory{})
+	return &clusterRandomizerClient{
 		ns:           namespace,
 		client:       c,
 		objectClient: objectClient,
