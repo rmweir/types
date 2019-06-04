@@ -42,7 +42,8 @@ var (
 		Init(etcdBackupTypes).
 		Init(monitorTypes).
 		Init(credTypes).
-		Init(mgmtSecretTypes)
+		Init(mgmtSecretTypes).
+		Init(clusterRandomizer)
 
 	TokenSchemas = factory.Schemas(&Version).
 			Init(tokens)
@@ -601,6 +602,9 @@ func globalTypes(schema *types.Schemas) *types.Schemas {
 		})
 }
 
+func clusterRandomizer(schema *types.Schemas) *types.Schemas {
+	return schema.MustImport(&Version, v3.ClusterRandomizer{})
+}
 func alertTypes(schema *types.Schemas) *types.Schemas {
 	return schema.
 		AddMapperForType(&Version, v3.Notifier{},
