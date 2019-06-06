@@ -162,13 +162,13 @@ var _ v3.ClusterRandomizerController = &ClusterRandomizerControllerMock{}
 //
 //         // make and configure a mocked ClusterRandomizerController
 //         mockedClusterRandomizerController := &ClusterRandomizerControllerMock{
-//             AddClusterScopedFeatureHandlerFunc: func(enabled func(string) bool, feat string, ctx context.Context, name string, clusterName string, handler v3.ClusterRandomizerHandlerFunc)  {
+//             AddClusterScopedFeatureHandlerFunc: func(enabled func() bool, ctx context.Context, name string, clusterName string, handler v3.ClusterRandomizerHandlerFunc)  {
 // 	               panic("mock out the AddClusterScopedFeatureHandler method")
 //             },
 //             AddClusterScopedHandlerFunc: func(ctx context.Context, name string, clusterName string, handler v3.ClusterRandomizerHandlerFunc)  {
 // 	               panic("mock out the AddClusterScopedHandler method")
 //             },
-//             AddFeatureHandlerFunc: func(enabled func(string) bool, feat string, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc)  {
+//             AddFeatureHandlerFunc: func(enabled func() bool, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc)  {
 // 	               panic("mock out the AddFeatureHandler method")
 //             },
 //             AddHandlerFunc: func(ctx context.Context, name string, handler v3.ClusterRandomizerHandlerFunc)  {
@@ -200,13 +200,13 @@ var _ v3.ClusterRandomizerController = &ClusterRandomizerControllerMock{}
 //     }
 type ClusterRandomizerControllerMock struct {
 	// AddClusterScopedFeatureHandlerFunc mocks the AddClusterScopedFeatureHandler method.
-	AddClusterScopedFeatureHandlerFunc func(enabled func(string) bool, feat string, ctx context.Context, name string, clusterName string, handler v3.ClusterRandomizerHandlerFunc)
+	AddClusterScopedFeatureHandlerFunc func(enabled func() bool, ctx context.Context, name string, clusterName string, handler v3.ClusterRandomizerHandlerFunc)
 
 	// AddClusterScopedHandlerFunc mocks the AddClusterScopedHandler method.
 	AddClusterScopedHandlerFunc func(ctx context.Context, name string, clusterName string, handler v3.ClusterRandomizerHandlerFunc)
 
 	// AddFeatureHandlerFunc mocks the AddFeatureHandler method.
-	AddFeatureHandlerFunc func(enabled func(string) bool, feat string, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc)
+	AddFeatureHandlerFunc func(enabled func() bool, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc)
 
 	// AddHandlerFunc mocks the AddHandler method.
 	AddHandlerFunc func(ctx context.Context, name string, handler v3.ClusterRandomizerHandlerFunc)
@@ -234,9 +234,7 @@ type ClusterRandomizerControllerMock struct {
 		// AddClusterScopedFeatureHandler holds details about calls to the AddClusterScopedFeatureHandler method.
 		AddClusterScopedFeatureHandler []struct {
 			// Enabled is the enabled argument value.
-			Enabled func(string) bool
-			// Feat is the feat argument value.
-			Feat string
+			Enabled func() bool
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Name is the name argument value.
@@ -260,9 +258,7 @@ type ClusterRandomizerControllerMock struct {
 		// AddFeatureHandler holds details about calls to the AddFeatureHandler method.
 		AddFeatureHandler []struct {
 			// Enabled is the enabled argument value.
-			Enabled func(string) bool
-			// Feat is the feat argument value.
-			Feat string
+			Enabled func() bool
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Name is the name argument value.
@@ -311,20 +307,18 @@ type ClusterRandomizerControllerMock struct {
 }
 
 // AddClusterScopedFeatureHandler calls AddClusterScopedFeatureHandlerFunc.
-func (mock *ClusterRandomizerControllerMock) AddClusterScopedFeatureHandler(enabled func(string) bool, feat string, ctx context.Context, name string, clusterName string, handler v3.ClusterRandomizerHandlerFunc) {
+func (mock *ClusterRandomizerControllerMock) AddClusterScopedFeatureHandler(enabled func() bool, ctx context.Context, name string, clusterName string, handler v3.ClusterRandomizerHandlerFunc) {
 	if mock.AddClusterScopedFeatureHandlerFunc == nil {
 		panic("ClusterRandomizerControllerMock.AddClusterScopedFeatureHandlerFunc: method is nil but ClusterRandomizerController.AddClusterScopedFeatureHandler was just called")
 	}
 	callInfo := struct {
-		Enabled     func(string) bool
-		Feat        string
+		Enabled     func() bool
 		Ctx         context.Context
 		Name        string
 		ClusterName string
 		Handler     v3.ClusterRandomizerHandlerFunc
 	}{
 		Enabled:     enabled,
-		Feat:        feat,
 		Ctx:         ctx,
 		Name:        name,
 		ClusterName: clusterName,
@@ -333,23 +327,21 @@ func (mock *ClusterRandomizerControllerMock) AddClusterScopedFeatureHandler(enab
 	lockClusterRandomizerControllerMockAddClusterScopedFeatureHandler.Lock()
 	mock.calls.AddClusterScopedFeatureHandler = append(mock.calls.AddClusterScopedFeatureHandler, callInfo)
 	lockClusterRandomizerControllerMockAddClusterScopedFeatureHandler.Unlock()
-	mock.AddClusterScopedFeatureHandlerFunc(enabled, feat, ctx, name, clusterName, handler)
+	mock.AddClusterScopedFeatureHandlerFunc(enabled, ctx, name, clusterName, handler)
 }
 
 // AddClusterScopedFeatureHandlerCalls gets all the calls that were made to AddClusterScopedFeatureHandler.
 // Check the length with:
 //     len(mockedClusterRandomizerController.AddClusterScopedFeatureHandlerCalls())
 func (mock *ClusterRandomizerControllerMock) AddClusterScopedFeatureHandlerCalls() []struct {
-	Enabled     func(string) bool
-	Feat        string
+	Enabled     func() bool
 	Ctx         context.Context
 	Name        string
 	ClusterName string
 	Handler     v3.ClusterRandomizerHandlerFunc
 } {
 	var calls []struct {
-		Enabled     func(string) bool
-		Feat        string
+		Enabled     func() bool
 		Ctx         context.Context
 		Name        string
 		ClusterName string
@@ -405,19 +397,17 @@ func (mock *ClusterRandomizerControllerMock) AddClusterScopedHandlerCalls() []st
 }
 
 // AddFeatureHandler calls AddFeatureHandlerFunc.
-func (mock *ClusterRandomizerControllerMock) AddFeatureHandler(enabled func(string) bool, feat string, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc) {
+func (mock *ClusterRandomizerControllerMock) AddFeatureHandler(enabled func() bool, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc) {
 	if mock.AddFeatureHandlerFunc == nil {
 		panic("ClusterRandomizerControllerMock.AddFeatureHandlerFunc: method is nil but ClusterRandomizerController.AddFeatureHandler was just called")
 	}
 	callInfo := struct {
-		Enabled func(string) bool
-		Feat    string
+		Enabled func() bool
 		Ctx     context.Context
 		Name    string
 		Sync    v3.ClusterRandomizerHandlerFunc
 	}{
 		Enabled: enabled,
-		Feat:    feat,
 		Ctx:     ctx,
 		Name:    name,
 		Sync:    sync,
@@ -425,22 +415,20 @@ func (mock *ClusterRandomizerControllerMock) AddFeatureHandler(enabled func(stri
 	lockClusterRandomizerControllerMockAddFeatureHandler.Lock()
 	mock.calls.AddFeatureHandler = append(mock.calls.AddFeatureHandler, callInfo)
 	lockClusterRandomizerControllerMockAddFeatureHandler.Unlock()
-	mock.AddFeatureHandlerFunc(enabled, feat, ctx, name, sync)
+	mock.AddFeatureHandlerFunc(enabled, ctx, name, sync)
 }
 
 // AddFeatureHandlerCalls gets all the calls that were made to AddFeatureHandler.
 // Check the length with:
 //     len(mockedClusterRandomizerController.AddFeatureHandlerCalls())
 func (mock *ClusterRandomizerControllerMock) AddFeatureHandlerCalls() []struct {
-	Enabled func(string) bool
-	Feat    string
+	Enabled func() bool
 	Ctx     context.Context
 	Name    string
 	Sync    v3.ClusterRandomizerHandlerFunc
 } {
 	var calls []struct {
-		Enabled func(string) bool
-		Feat    string
+		Enabled func() bool
 		Ctx     context.Context
 		Name    string
 		Sync    v3.ClusterRandomizerHandlerFunc
@@ -701,10 +689,10 @@ var _ v3.ClusterRandomizerInterface = &ClusterRandomizerInterfaceMock{}
 //
 //         // make and configure a mocked ClusterRandomizerInterface
 //         mockedClusterRandomizerInterface := &ClusterRandomizerInterfaceMock{
-//             AddClusterScopedFeatureHandlerFunc: func(enabled func(string) bool, feat string, ctx context.Context, name string, clusterName string, sync v3.ClusterRandomizerHandlerFunc)  {
+//             AddClusterScopedFeatureHandlerFunc: func(enabled func() bool, ctx context.Context, name string, clusterName string, sync v3.ClusterRandomizerHandlerFunc)  {
 // 	               panic("mock out the AddClusterScopedFeatureHandler method")
 //             },
-//             AddClusterScopedFeatureLifecycleFunc: func(enabled func(string) bool, feat string, ctx context.Context, name string, clusterName string, lifecycle v3.ClusterRandomizerLifecycle)  {
+//             AddClusterScopedFeatureLifecycleFunc: func(enabled func() bool, ctx context.Context, name string, clusterName string, lifecycle v3.ClusterRandomizerLifecycle)  {
 // 	               panic("mock out the AddClusterScopedFeatureLifecycle method")
 //             },
 //             AddClusterScopedHandlerFunc: func(ctx context.Context, name string, clusterName string, sync v3.ClusterRandomizerHandlerFunc)  {
@@ -713,10 +701,10 @@ var _ v3.ClusterRandomizerInterface = &ClusterRandomizerInterfaceMock{}
 //             AddClusterScopedLifecycleFunc: func(ctx context.Context, name string, clusterName string, lifecycle v3.ClusterRandomizerLifecycle)  {
 // 	               panic("mock out the AddClusterScopedLifecycle method")
 //             },
-//             AddFeatureHandlerFunc: func(enabled func(string) bool, feat string, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc)  {
+//             AddFeatureHandlerFunc: func(enabled func() bool, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc)  {
 // 	               panic("mock out the AddFeatureHandler method")
 //             },
-//             AddFeatureLifecycleFunc: func(enabled func(string) bool, feat string, ctx context.Context, name string, lifecycle v3.ClusterRandomizerLifecycle)  {
+//             AddFeatureLifecycleFunc: func(enabled func() bool, ctx context.Context, name string, lifecycle v3.ClusterRandomizerLifecycle)  {
 // 	               panic("mock out the AddFeatureLifecycle method")
 //             },
 //             AddHandlerFunc: func(ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc)  {
@@ -766,10 +754,10 @@ var _ v3.ClusterRandomizerInterface = &ClusterRandomizerInterfaceMock{}
 //     }
 type ClusterRandomizerInterfaceMock struct {
 	// AddClusterScopedFeatureHandlerFunc mocks the AddClusterScopedFeatureHandler method.
-	AddClusterScopedFeatureHandlerFunc func(enabled func(string) bool, feat string, ctx context.Context, name string, clusterName string, sync v3.ClusterRandomizerHandlerFunc)
+	AddClusterScopedFeatureHandlerFunc func(enabled func() bool, ctx context.Context, name string, clusterName string, sync v3.ClusterRandomizerHandlerFunc)
 
 	// AddClusterScopedFeatureLifecycleFunc mocks the AddClusterScopedFeatureLifecycle method.
-	AddClusterScopedFeatureLifecycleFunc func(enabled func(string) bool, feat string, ctx context.Context, name string, clusterName string, lifecycle v3.ClusterRandomizerLifecycle)
+	AddClusterScopedFeatureLifecycleFunc func(enabled func() bool, ctx context.Context, name string, clusterName string, lifecycle v3.ClusterRandomizerLifecycle)
 
 	// AddClusterScopedHandlerFunc mocks the AddClusterScopedHandler method.
 	AddClusterScopedHandlerFunc func(ctx context.Context, name string, clusterName string, sync v3.ClusterRandomizerHandlerFunc)
@@ -778,10 +766,10 @@ type ClusterRandomizerInterfaceMock struct {
 	AddClusterScopedLifecycleFunc func(ctx context.Context, name string, clusterName string, lifecycle v3.ClusterRandomizerLifecycle)
 
 	// AddFeatureHandlerFunc mocks the AddFeatureHandler method.
-	AddFeatureHandlerFunc func(enabled func(string) bool, feat string, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc)
+	AddFeatureHandlerFunc func(enabled func() bool, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc)
 
 	// AddFeatureLifecycleFunc mocks the AddFeatureLifecycle method.
-	AddFeatureLifecycleFunc func(enabled func(string) bool, feat string, ctx context.Context, name string, lifecycle v3.ClusterRandomizerLifecycle)
+	AddFeatureLifecycleFunc func(enabled func() bool, ctx context.Context, name string, lifecycle v3.ClusterRandomizerLifecycle)
 
 	// AddHandlerFunc mocks the AddHandler method.
 	AddHandlerFunc func(ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc)
@@ -827,9 +815,7 @@ type ClusterRandomizerInterfaceMock struct {
 		// AddClusterScopedFeatureHandler holds details about calls to the AddClusterScopedFeatureHandler method.
 		AddClusterScopedFeatureHandler []struct {
 			// Enabled is the enabled argument value.
-			Enabled func(string) bool
-			// Feat is the feat argument value.
-			Feat string
+			Enabled func() bool
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Name is the name argument value.
@@ -842,9 +828,7 @@ type ClusterRandomizerInterfaceMock struct {
 		// AddClusterScopedFeatureLifecycle holds details about calls to the AddClusterScopedFeatureLifecycle method.
 		AddClusterScopedFeatureLifecycle []struct {
 			// Enabled is the enabled argument value.
-			Enabled func(string) bool
-			// Feat is the feat argument value.
-			Feat string
+			Enabled func() bool
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Name is the name argument value.
@@ -879,9 +863,7 @@ type ClusterRandomizerInterfaceMock struct {
 		// AddFeatureHandler holds details about calls to the AddFeatureHandler method.
 		AddFeatureHandler []struct {
 			// Enabled is the enabled argument value.
-			Enabled func(string) bool
-			// Feat is the feat argument value.
-			Feat string
+			Enabled func() bool
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Name is the name argument value.
@@ -892,9 +874,7 @@ type ClusterRandomizerInterfaceMock struct {
 		// AddFeatureLifecycle holds details about calls to the AddFeatureLifecycle method.
 		AddFeatureLifecycle []struct {
 			// Enabled is the enabled argument value.
-			Enabled func(string) bool
-			// Feat is the feat argument value.
-			Feat string
+			Enabled func() bool
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Name is the name argument value.
@@ -989,20 +969,18 @@ type ClusterRandomizerInterfaceMock struct {
 }
 
 // AddClusterScopedFeatureHandler calls AddClusterScopedFeatureHandlerFunc.
-func (mock *ClusterRandomizerInterfaceMock) AddClusterScopedFeatureHandler(enabled func(string) bool, feat string, ctx context.Context, name string, clusterName string, sync v3.ClusterRandomizerHandlerFunc) {
+func (mock *ClusterRandomizerInterfaceMock) AddClusterScopedFeatureHandler(enabled func() bool, ctx context.Context, name string, clusterName string, sync v3.ClusterRandomizerHandlerFunc) {
 	if mock.AddClusterScopedFeatureHandlerFunc == nil {
 		panic("ClusterRandomizerInterfaceMock.AddClusterScopedFeatureHandlerFunc: method is nil but ClusterRandomizerInterface.AddClusterScopedFeatureHandler was just called")
 	}
 	callInfo := struct {
-		Enabled     func(string) bool
-		Feat        string
+		Enabled     func() bool
 		Ctx         context.Context
 		Name        string
 		ClusterName string
 		Sync        v3.ClusterRandomizerHandlerFunc
 	}{
 		Enabled:     enabled,
-		Feat:        feat,
 		Ctx:         ctx,
 		Name:        name,
 		ClusterName: clusterName,
@@ -1011,23 +989,21 @@ func (mock *ClusterRandomizerInterfaceMock) AddClusterScopedFeatureHandler(enabl
 	lockClusterRandomizerInterfaceMockAddClusterScopedFeatureHandler.Lock()
 	mock.calls.AddClusterScopedFeatureHandler = append(mock.calls.AddClusterScopedFeatureHandler, callInfo)
 	lockClusterRandomizerInterfaceMockAddClusterScopedFeatureHandler.Unlock()
-	mock.AddClusterScopedFeatureHandlerFunc(enabled, feat, ctx, name, clusterName, sync)
+	mock.AddClusterScopedFeatureHandlerFunc(enabled, ctx, name, clusterName, sync)
 }
 
 // AddClusterScopedFeatureHandlerCalls gets all the calls that were made to AddClusterScopedFeatureHandler.
 // Check the length with:
 //     len(mockedClusterRandomizerInterface.AddClusterScopedFeatureHandlerCalls())
 func (mock *ClusterRandomizerInterfaceMock) AddClusterScopedFeatureHandlerCalls() []struct {
-	Enabled     func(string) bool
-	Feat        string
+	Enabled     func() bool
 	Ctx         context.Context
 	Name        string
 	ClusterName string
 	Sync        v3.ClusterRandomizerHandlerFunc
 } {
 	var calls []struct {
-		Enabled     func(string) bool
-		Feat        string
+		Enabled     func() bool
 		Ctx         context.Context
 		Name        string
 		ClusterName string
@@ -1040,20 +1016,18 @@ func (mock *ClusterRandomizerInterfaceMock) AddClusterScopedFeatureHandlerCalls(
 }
 
 // AddClusterScopedFeatureLifecycle calls AddClusterScopedFeatureLifecycleFunc.
-func (mock *ClusterRandomizerInterfaceMock) AddClusterScopedFeatureLifecycle(enabled func(string) bool, feat string, ctx context.Context, name string, clusterName string, lifecycle v3.ClusterRandomizerLifecycle) {
+func (mock *ClusterRandomizerInterfaceMock) AddClusterScopedFeatureLifecycle(enabled func() bool, ctx context.Context, name string, clusterName string, lifecycle v3.ClusterRandomizerLifecycle) {
 	if mock.AddClusterScopedFeatureLifecycleFunc == nil {
 		panic("ClusterRandomizerInterfaceMock.AddClusterScopedFeatureLifecycleFunc: method is nil but ClusterRandomizerInterface.AddClusterScopedFeatureLifecycle was just called")
 	}
 	callInfo := struct {
-		Enabled     func(string) bool
-		Feat        string
+		Enabled     func() bool
 		Ctx         context.Context
 		Name        string
 		ClusterName string
 		Lifecycle   v3.ClusterRandomizerLifecycle
 	}{
 		Enabled:     enabled,
-		Feat:        feat,
 		Ctx:         ctx,
 		Name:        name,
 		ClusterName: clusterName,
@@ -1062,23 +1036,21 @@ func (mock *ClusterRandomizerInterfaceMock) AddClusterScopedFeatureLifecycle(ena
 	lockClusterRandomizerInterfaceMockAddClusterScopedFeatureLifecycle.Lock()
 	mock.calls.AddClusterScopedFeatureLifecycle = append(mock.calls.AddClusterScopedFeatureLifecycle, callInfo)
 	lockClusterRandomizerInterfaceMockAddClusterScopedFeatureLifecycle.Unlock()
-	mock.AddClusterScopedFeatureLifecycleFunc(enabled, feat, ctx, name, clusterName, lifecycle)
+	mock.AddClusterScopedFeatureLifecycleFunc(enabled, ctx, name, clusterName, lifecycle)
 }
 
 // AddClusterScopedFeatureLifecycleCalls gets all the calls that were made to AddClusterScopedFeatureLifecycle.
 // Check the length with:
 //     len(mockedClusterRandomizerInterface.AddClusterScopedFeatureLifecycleCalls())
 func (mock *ClusterRandomizerInterfaceMock) AddClusterScopedFeatureLifecycleCalls() []struct {
-	Enabled     func(string) bool
-	Feat        string
+	Enabled     func() bool
 	Ctx         context.Context
 	Name        string
 	ClusterName string
 	Lifecycle   v3.ClusterRandomizerLifecycle
 } {
 	var calls []struct {
-		Enabled     func(string) bool
-		Feat        string
+		Enabled     func() bool
 		Ctx         context.Context
 		Name        string
 		ClusterName string
@@ -1177,19 +1149,17 @@ func (mock *ClusterRandomizerInterfaceMock) AddClusterScopedLifecycleCalls() []s
 }
 
 // AddFeatureHandler calls AddFeatureHandlerFunc.
-func (mock *ClusterRandomizerInterfaceMock) AddFeatureHandler(enabled func(string) bool, feat string, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc) {
+func (mock *ClusterRandomizerInterfaceMock) AddFeatureHandler(enabled func() bool, ctx context.Context, name string, sync v3.ClusterRandomizerHandlerFunc) {
 	if mock.AddFeatureHandlerFunc == nil {
 		panic("ClusterRandomizerInterfaceMock.AddFeatureHandlerFunc: method is nil but ClusterRandomizerInterface.AddFeatureHandler was just called")
 	}
 	callInfo := struct {
-		Enabled func(string) bool
-		Feat    string
+		Enabled func() bool
 		Ctx     context.Context
 		Name    string
 		Sync    v3.ClusterRandomizerHandlerFunc
 	}{
 		Enabled: enabled,
-		Feat:    feat,
 		Ctx:     ctx,
 		Name:    name,
 		Sync:    sync,
@@ -1197,22 +1167,20 @@ func (mock *ClusterRandomizerInterfaceMock) AddFeatureHandler(enabled func(strin
 	lockClusterRandomizerInterfaceMockAddFeatureHandler.Lock()
 	mock.calls.AddFeatureHandler = append(mock.calls.AddFeatureHandler, callInfo)
 	lockClusterRandomizerInterfaceMockAddFeatureHandler.Unlock()
-	mock.AddFeatureHandlerFunc(enabled, feat, ctx, name, sync)
+	mock.AddFeatureHandlerFunc(enabled, ctx, name, sync)
 }
 
 // AddFeatureHandlerCalls gets all the calls that were made to AddFeatureHandler.
 // Check the length with:
 //     len(mockedClusterRandomizerInterface.AddFeatureHandlerCalls())
 func (mock *ClusterRandomizerInterfaceMock) AddFeatureHandlerCalls() []struct {
-	Enabled func(string) bool
-	Feat    string
+	Enabled func() bool
 	Ctx     context.Context
 	Name    string
 	Sync    v3.ClusterRandomizerHandlerFunc
 } {
 	var calls []struct {
-		Enabled func(string) bool
-		Feat    string
+		Enabled func() bool
 		Ctx     context.Context
 		Name    string
 		Sync    v3.ClusterRandomizerHandlerFunc
@@ -1224,19 +1192,17 @@ func (mock *ClusterRandomizerInterfaceMock) AddFeatureHandlerCalls() []struct {
 }
 
 // AddFeatureLifecycle calls AddFeatureLifecycleFunc.
-func (mock *ClusterRandomizerInterfaceMock) AddFeatureLifecycle(enabled func(string) bool, feat string, ctx context.Context, name string, lifecycle v3.ClusterRandomizerLifecycle) {
+func (mock *ClusterRandomizerInterfaceMock) AddFeatureLifecycle(enabled func() bool, ctx context.Context, name string, lifecycle v3.ClusterRandomizerLifecycle) {
 	if mock.AddFeatureLifecycleFunc == nil {
 		panic("ClusterRandomizerInterfaceMock.AddFeatureLifecycleFunc: method is nil but ClusterRandomizerInterface.AddFeatureLifecycle was just called")
 	}
 	callInfo := struct {
-		Enabled   func(string) bool
-		Feat      string
+		Enabled   func() bool
 		Ctx       context.Context
 		Name      string
 		Lifecycle v3.ClusterRandomizerLifecycle
 	}{
 		Enabled:   enabled,
-		Feat:      feat,
 		Ctx:       ctx,
 		Name:      name,
 		Lifecycle: lifecycle,
@@ -1244,22 +1210,20 @@ func (mock *ClusterRandomizerInterfaceMock) AddFeatureLifecycle(enabled func(str
 	lockClusterRandomizerInterfaceMockAddFeatureLifecycle.Lock()
 	mock.calls.AddFeatureLifecycle = append(mock.calls.AddFeatureLifecycle, callInfo)
 	lockClusterRandomizerInterfaceMockAddFeatureLifecycle.Unlock()
-	mock.AddFeatureLifecycleFunc(enabled, feat, ctx, name, lifecycle)
+	mock.AddFeatureLifecycleFunc(enabled, ctx, name, lifecycle)
 }
 
 // AddFeatureLifecycleCalls gets all the calls that were made to AddFeatureLifecycle.
 // Check the length with:
 //     len(mockedClusterRandomizerInterface.AddFeatureLifecycleCalls())
 func (mock *ClusterRandomizerInterfaceMock) AddFeatureLifecycleCalls() []struct {
-	Enabled   func(string) bool
-	Feat      string
+	Enabled   func() bool
 	Ctx       context.Context
 	Name      string
 	Lifecycle v3.ClusterRandomizerLifecycle
 } {
 	var calls []struct {
-		Enabled   func(string) bool
-		Feat      string
+		Enabled   func() bool
 		Ctx       context.Context
 		Name      string
 		Lifecycle v3.ClusterRandomizerLifecycle
