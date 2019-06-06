@@ -140,14 +140,16 @@ func (mock *SSHAuthListerMock) ListCalls() []struct {
 }
 
 var (
-	lockSSHAuthControllerMockAddClusterScopedHandler sync.RWMutex
-	lockSSHAuthControllerMockAddHandler              sync.RWMutex
-	lockSSHAuthControllerMockEnqueue                 sync.RWMutex
-	lockSSHAuthControllerMockGeneric                 sync.RWMutex
-	lockSSHAuthControllerMockInformer                sync.RWMutex
-	lockSSHAuthControllerMockLister                  sync.RWMutex
-	lockSSHAuthControllerMockStart                   sync.RWMutex
-	lockSSHAuthControllerMockSync                    sync.RWMutex
+	lockSSHAuthControllerMockAddClusterScopedFeatureHandler sync.RWMutex
+	lockSSHAuthControllerMockAddClusterScopedHandler        sync.RWMutex
+	lockSSHAuthControllerMockAddFeatureHandler              sync.RWMutex
+	lockSSHAuthControllerMockAddHandler                     sync.RWMutex
+	lockSSHAuthControllerMockEnqueue                        sync.RWMutex
+	lockSSHAuthControllerMockGeneric                        sync.RWMutex
+	lockSSHAuthControllerMockInformer                       sync.RWMutex
+	lockSSHAuthControllerMockLister                         sync.RWMutex
+	lockSSHAuthControllerMockStart                          sync.RWMutex
+	lockSSHAuthControllerMockSync                           sync.RWMutex
 )
 
 // Ensure, that SSHAuthControllerMock does implement SSHAuthController.
@@ -160,8 +162,14 @@ var _ v3.SSHAuthController = &SSHAuthControllerMock{}
 //
 //         // make and configure a mocked SSHAuthController
 //         mockedSSHAuthController := &SSHAuthControllerMock{
+//             AddClusterScopedFeatureHandlerFunc: func(enabled func() bool, ctx context.Context, name string, clusterName string, handler v3.SSHAuthHandlerFunc)  {
+// 	               panic("mock out the AddClusterScopedFeatureHandler method")
+//             },
 //             AddClusterScopedHandlerFunc: func(ctx context.Context, name string, clusterName string, handler v3.SSHAuthHandlerFunc)  {
 // 	               panic("mock out the AddClusterScopedHandler method")
+//             },
+//             AddFeatureHandlerFunc: func(enabled func() bool, ctx context.Context, name string, sync v3.SSHAuthHandlerFunc)  {
+// 	               panic("mock out the AddFeatureHandler method")
 //             },
 //             AddHandlerFunc: func(ctx context.Context, name string, handler v3.SSHAuthHandlerFunc)  {
 // 	               panic("mock out the AddHandler method")
@@ -191,8 +199,14 @@ var _ v3.SSHAuthController = &SSHAuthControllerMock{}
 //
 //     }
 type SSHAuthControllerMock struct {
+	// AddClusterScopedFeatureHandlerFunc mocks the AddClusterScopedFeatureHandler method.
+	AddClusterScopedFeatureHandlerFunc func(enabled func() bool, ctx context.Context, name string, clusterName string, handler v3.SSHAuthHandlerFunc)
+
 	// AddClusterScopedHandlerFunc mocks the AddClusterScopedHandler method.
 	AddClusterScopedHandlerFunc func(ctx context.Context, name string, clusterName string, handler v3.SSHAuthHandlerFunc)
+
+	// AddFeatureHandlerFunc mocks the AddFeatureHandler method.
+	AddFeatureHandlerFunc func(enabled func() bool, ctx context.Context, name string, sync v3.SSHAuthHandlerFunc)
 
 	// AddHandlerFunc mocks the AddHandler method.
 	AddHandlerFunc func(ctx context.Context, name string, handler v3.SSHAuthHandlerFunc)
@@ -217,6 +231,19 @@ type SSHAuthControllerMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// AddClusterScopedFeatureHandler holds details about calls to the AddClusterScopedFeatureHandler method.
+		AddClusterScopedFeatureHandler []struct {
+			// Enabled is the enabled argument value.
+			Enabled func() bool
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Name is the name argument value.
+			Name string
+			// ClusterName is the clusterName argument value.
+			ClusterName string
+			// Handler is the handler argument value.
+			Handler v3.SSHAuthHandlerFunc
+		}
 		// AddClusterScopedHandler holds details about calls to the AddClusterScopedHandler method.
 		AddClusterScopedHandler []struct {
 			// Ctx is the ctx argument value.
@@ -227,6 +254,17 @@ type SSHAuthControllerMock struct {
 			ClusterName string
 			// Handler is the handler argument value.
 			Handler v3.SSHAuthHandlerFunc
+		}
+		// AddFeatureHandler holds details about calls to the AddFeatureHandler method.
+		AddFeatureHandler []struct {
+			// Enabled is the enabled argument value.
+			Enabled func() bool
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Name is the name argument value.
+			Name string
+			// Sync is the sync argument value.
+			Sync v3.SSHAuthHandlerFunc
 		}
 		// AddHandler holds details about calls to the AddHandler method.
 		AddHandler []struct {
@@ -266,6 +304,53 @@ type SSHAuthControllerMock struct {
 			Ctx context.Context
 		}
 	}
+}
+
+// AddClusterScopedFeatureHandler calls AddClusterScopedFeatureHandlerFunc.
+func (mock *SSHAuthControllerMock) AddClusterScopedFeatureHandler(enabled func() bool, ctx context.Context, name string, clusterName string, handler v3.SSHAuthHandlerFunc) {
+	if mock.AddClusterScopedFeatureHandlerFunc == nil {
+		panic("SSHAuthControllerMock.AddClusterScopedFeatureHandlerFunc: method is nil but SSHAuthController.AddClusterScopedFeatureHandler was just called")
+	}
+	callInfo := struct {
+		Enabled     func() bool
+		Ctx         context.Context
+		Name        string
+		ClusterName string
+		Handler     v3.SSHAuthHandlerFunc
+	}{
+		Enabled:     enabled,
+		Ctx:         ctx,
+		Name:        name,
+		ClusterName: clusterName,
+		Handler:     handler,
+	}
+	lockSSHAuthControllerMockAddClusterScopedFeatureHandler.Lock()
+	mock.calls.AddClusterScopedFeatureHandler = append(mock.calls.AddClusterScopedFeatureHandler, callInfo)
+	lockSSHAuthControllerMockAddClusterScopedFeatureHandler.Unlock()
+	mock.AddClusterScopedFeatureHandlerFunc(enabled, ctx, name, clusterName, handler)
+}
+
+// AddClusterScopedFeatureHandlerCalls gets all the calls that were made to AddClusterScopedFeatureHandler.
+// Check the length with:
+//     len(mockedSSHAuthController.AddClusterScopedFeatureHandlerCalls())
+func (mock *SSHAuthControllerMock) AddClusterScopedFeatureHandlerCalls() []struct {
+	Enabled     func() bool
+	Ctx         context.Context
+	Name        string
+	ClusterName string
+	Handler     v3.SSHAuthHandlerFunc
+} {
+	var calls []struct {
+		Enabled     func() bool
+		Ctx         context.Context
+		Name        string
+		ClusterName string
+		Handler     v3.SSHAuthHandlerFunc
+	}
+	lockSSHAuthControllerMockAddClusterScopedFeatureHandler.RLock()
+	calls = mock.calls.AddClusterScopedFeatureHandler
+	lockSSHAuthControllerMockAddClusterScopedFeatureHandler.RUnlock()
+	return calls
 }
 
 // AddClusterScopedHandler calls AddClusterScopedHandlerFunc.
@@ -308,6 +393,49 @@ func (mock *SSHAuthControllerMock) AddClusterScopedHandlerCalls() []struct {
 	lockSSHAuthControllerMockAddClusterScopedHandler.RLock()
 	calls = mock.calls.AddClusterScopedHandler
 	lockSSHAuthControllerMockAddClusterScopedHandler.RUnlock()
+	return calls
+}
+
+// AddFeatureHandler calls AddFeatureHandlerFunc.
+func (mock *SSHAuthControllerMock) AddFeatureHandler(enabled func() bool, ctx context.Context, name string, sync v3.SSHAuthHandlerFunc) {
+	if mock.AddFeatureHandlerFunc == nil {
+		panic("SSHAuthControllerMock.AddFeatureHandlerFunc: method is nil but SSHAuthController.AddFeatureHandler was just called")
+	}
+	callInfo := struct {
+		Enabled func() bool
+		Ctx     context.Context
+		Name    string
+		Sync    v3.SSHAuthHandlerFunc
+	}{
+		Enabled: enabled,
+		Ctx:     ctx,
+		Name:    name,
+		Sync:    sync,
+	}
+	lockSSHAuthControllerMockAddFeatureHandler.Lock()
+	mock.calls.AddFeatureHandler = append(mock.calls.AddFeatureHandler, callInfo)
+	lockSSHAuthControllerMockAddFeatureHandler.Unlock()
+	mock.AddFeatureHandlerFunc(enabled, ctx, name, sync)
+}
+
+// AddFeatureHandlerCalls gets all the calls that were made to AddFeatureHandler.
+// Check the length with:
+//     len(mockedSSHAuthController.AddFeatureHandlerCalls())
+func (mock *SSHAuthControllerMock) AddFeatureHandlerCalls() []struct {
+	Enabled func() bool
+	Ctx     context.Context
+	Name    string
+	Sync    v3.SSHAuthHandlerFunc
+} {
+	var calls []struct {
+		Enabled func() bool
+		Ctx     context.Context
+		Name    string
+		Sync    v3.SSHAuthHandlerFunc
+	}
+	lockSSHAuthControllerMockAddFeatureHandler.RLock()
+	calls = mock.calls.AddFeatureHandler
+	lockSSHAuthControllerMockAddFeatureHandler.RUnlock()
 	return calls
 }
 
@@ -530,21 +658,25 @@ func (mock *SSHAuthControllerMock) SyncCalls() []struct {
 }
 
 var (
-	lockSSHAuthInterfaceMockAddClusterScopedHandler   sync.RWMutex
-	lockSSHAuthInterfaceMockAddClusterScopedLifecycle sync.RWMutex
-	lockSSHAuthInterfaceMockAddHandler                sync.RWMutex
-	lockSSHAuthInterfaceMockAddLifecycle              sync.RWMutex
-	lockSSHAuthInterfaceMockController                sync.RWMutex
-	lockSSHAuthInterfaceMockCreate                    sync.RWMutex
-	lockSSHAuthInterfaceMockDelete                    sync.RWMutex
-	lockSSHAuthInterfaceMockDeleteCollection          sync.RWMutex
-	lockSSHAuthInterfaceMockDeleteNamespaced          sync.RWMutex
-	lockSSHAuthInterfaceMockGet                       sync.RWMutex
-	lockSSHAuthInterfaceMockGetNamespaced             sync.RWMutex
-	lockSSHAuthInterfaceMockList                      sync.RWMutex
-	lockSSHAuthInterfaceMockObjectClient              sync.RWMutex
-	lockSSHAuthInterfaceMockUpdate                    sync.RWMutex
-	lockSSHAuthInterfaceMockWatch                     sync.RWMutex
+	lockSSHAuthInterfaceMockAddClusterScopedFeatureHandler   sync.RWMutex
+	lockSSHAuthInterfaceMockAddClusterScopedFeatureLifecycle sync.RWMutex
+	lockSSHAuthInterfaceMockAddClusterScopedHandler          sync.RWMutex
+	lockSSHAuthInterfaceMockAddClusterScopedLifecycle        sync.RWMutex
+	lockSSHAuthInterfaceMockAddFeatureHandler                sync.RWMutex
+	lockSSHAuthInterfaceMockAddFeatureLifecycle              sync.RWMutex
+	lockSSHAuthInterfaceMockAddHandler                       sync.RWMutex
+	lockSSHAuthInterfaceMockAddLifecycle                     sync.RWMutex
+	lockSSHAuthInterfaceMockController                       sync.RWMutex
+	lockSSHAuthInterfaceMockCreate                           sync.RWMutex
+	lockSSHAuthInterfaceMockDelete                           sync.RWMutex
+	lockSSHAuthInterfaceMockDeleteCollection                 sync.RWMutex
+	lockSSHAuthInterfaceMockDeleteNamespaced                 sync.RWMutex
+	lockSSHAuthInterfaceMockGet                              sync.RWMutex
+	lockSSHAuthInterfaceMockGetNamespaced                    sync.RWMutex
+	lockSSHAuthInterfaceMockList                             sync.RWMutex
+	lockSSHAuthInterfaceMockObjectClient                     sync.RWMutex
+	lockSSHAuthInterfaceMockUpdate                           sync.RWMutex
+	lockSSHAuthInterfaceMockWatch                            sync.RWMutex
 )
 
 // Ensure, that SSHAuthInterfaceMock does implement SSHAuthInterface.
@@ -557,11 +689,23 @@ var _ v3.SSHAuthInterface = &SSHAuthInterfaceMock{}
 //
 //         // make and configure a mocked SSHAuthInterface
 //         mockedSSHAuthInterface := &SSHAuthInterfaceMock{
+//             AddClusterScopedFeatureHandlerFunc: func(enabled func() bool, ctx context.Context, name string, clusterName string, sync v3.SSHAuthHandlerFunc)  {
+// 	               panic("mock out the AddClusterScopedFeatureHandler method")
+//             },
+//             AddClusterScopedFeatureLifecycleFunc: func(enabled func() bool, ctx context.Context, name string, clusterName string, lifecycle v3.SSHAuthLifecycle)  {
+// 	               panic("mock out the AddClusterScopedFeatureLifecycle method")
+//             },
 //             AddClusterScopedHandlerFunc: func(ctx context.Context, name string, clusterName string, sync v3.SSHAuthHandlerFunc)  {
 // 	               panic("mock out the AddClusterScopedHandler method")
 //             },
 //             AddClusterScopedLifecycleFunc: func(ctx context.Context, name string, clusterName string, lifecycle v3.SSHAuthLifecycle)  {
 // 	               panic("mock out the AddClusterScopedLifecycle method")
+//             },
+//             AddFeatureHandlerFunc: func(enabled func() bool, ctx context.Context, name string, sync v3.SSHAuthHandlerFunc)  {
+// 	               panic("mock out the AddFeatureHandler method")
+//             },
+//             AddFeatureLifecycleFunc: func(enabled func() bool, ctx context.Context, name string, lifecycle v3.SSHAuthLifecycle)  {
+// 	               panic("mock out the AddFeatureLifecycle method")
 //             },
 //             AddHandlerFunc: func(ctx context.Context, name string, sync v3.SSHAuthHandlerFunc)  {
 // 	               panic("mock out the AddHandler method")
@@ -609,11 +753,23 @@ var _ v3.SSHAuthInterface = &SSHAuthInterfaceMock{}
 //
 //     }
 type SSHAuthInterfaceMock struct {
+	// AddClusterScopedFeatureHandlerFunc mocks the AddClusterScopedFeatureHandler method.
+	AddClusterScopedFeatureHandlerFunc func(enabled func() bool, ctx context.Context, name string, clusterName string, sync v3.SSHAuthHandlerFunc)
+
+	// AddClusterScopedFeatureLifecycleFunc mocks the AddClusterScopedFeatureLifecycle method.
+	AddClusterScopedFeatureLifecycleFunc func(enabled func() bool, ctx context.Context, name string, clusterName string, lifecycle v3.SSHAuthLifecycle)
+
 	// AddClusterScopedHandlerFunc mocks the AddClusterScopedHandler method.
 	AddClusterScopedHandlerFunc func(ctx context.Context, name string, clusterName string, sync v3.SSHAuthHandlerFunc)
 
 	// AddClusterScopedLifecycleFunc mocks the AddClusterScopedLifecycle method.
 	AddClusterScopedLifecycleFunc func(ctx context.Context, name string, clusterName string, lifecycle v3.SSHAuthLifecycle)
+
+	// AddFeatureHandlerFunc mocks the AddFeatureHandler method.
+	AddFeatureHandlerFunc func(enabled func() bool, ctx context.Context, name string, sync v3.SSHAuthHandlerFunc)
+
+	// AddFeatureLifecycleFunc mocks the AddFeatureLifecycle method.
+	AddFeatureLifecycleFunc func(enabled func() bool, ctx context.Context, name string, lifecycle v3.SSHAuthLifecycle)
 
 	// AddHandlerFunc mocks the AddHandler method.
 	AddHandlerFunc func(ctx context.Context, name string, sync v3.SSHAuthHandlerFunc)
@@ -656,6 +812,32 @@ type SSHAuthInterfaceMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// AddClusterScopedFeatureHandler holds details about calls to the AddClusterScopedFeatureHandler method.
+		AddClusterScopedFeatureHandler []struct {
+			// Enabled is the enabled argument value.
+			Enabled func() bool
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Name is the name argument value.
+			Name string
+			// ClusterName is the clusterName argument value.
+			ClusterName string
+			// Sync is the sync argument value.
+			Sync v3.SSHAuthHandlerFunc
+		}
+		// AddClusterScopedFeatureLifecycle holds details about calls to the AddClusterScopedFeatureLifecycle method.
+		AddClusterScopedFeatureLifecycle []struct {
+			// Enabled is the enabled argument value.
+			Enabled func() bool
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Name is the name argument value.
+			Name string
+			// ClusterName is the clusterName argument value.
+			ClusterName string
+			// Lifecycle is the lifecycle argument value.
+			Lifecycle v3.SSHAuthLifecycle
+		}
 		// AddClusterScopedHandler holds details about calls to the AddClusterScopedHandler method.
 		AddClusterScopedHandler []struct {
 			// Ctx is the ctx argument value.
@@ -675,6 +857,28 @@ type SSHAuthInterfaceMock struct {
 			Name string
 			// ClusterName is the clusterName argument value.
 			ClusterName string
+			// Lifecycle is the lifecycle argument value.
+			Lifecycle v3.SSHAuthLifecycle
+		}
+		// AddFeatureHandler holds details about calls to the AddFeatureHandler method.
+		AddFeatureHandler []struct {
+			// Enabled is the enabled argument value.
+			Enabled func() bool
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Name is the name argument value.
+			Name string
+			// Sync is the sync argument value.
+			Sync v3.SSHAuthHandlerFunc
+		}
+		// AddFeatureLifecycle holds details about calls to the AddFeatureLifecycle method.
+		AddFeatureLifecycle []struct {
+			// Enabled is the enabled argument value.
+			Enabled func() bool
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Name is the name argument value.
+			Name string
 			// Lifecycle is the lifecycle argument value.
 			Lifecycle v3.SSHAuthLifecycle
 		}
@@ -764,6 +968,100 @@ type SSHAuthInterfaceMock struct {
 	}
 }
 
+// AddClusterScopedFeatureHandler calls AddClusterScopedFeatureHandlerFunc.
+func (mock *SSHAuthInterfaceMock) AddClusterScopedFeatureHandler(enabled func() bool, ctx context.Context, name string, clusterName string, sync v3.SSHAuthHandlerFunc) {
+	if mock.AddClusterScopedFeatureHandlerFunc == nil {
+		panic("SSHAuthInterfaceMock.AddClusterScopedFeatureHandlerFunc: method is nil but SSHAuthInterface.AddClusterScopedFeatureHandler was just called")
+	}
+	callInfo := struct {
+		Enabled     func() bool
+		Ctx         context.Context
+		Name        string
+		ClusterName string
+		Sync        v3.SSHAuthHandlerFunc
+	}{
+		Enabled:     enabled,
+		Ctx:         ctx,
+		Name:        name,
+		ClusterName: clusterName,
+		Sync:        sync,
+	}
+	lockSSHAuthInterfaceMockAddClusterScopedFeatureHandler.Lock()
+	mock.calls.AddClusterScopedFeatureHandler = append(mock.calls.AddClusterScopedFeatureHandler, callInfo)
+	lockSSHAuthInterfaceMockAddClusterScopedFeatureHandler.Unlock()
+	mock.AddClusterScopedFeatureHandlerFunc(enabled, ctx, name, clusterName, sync)
+}
+
+// AddClusterScopedFeatureHandlerCalls gets all the calls that were made to AddClusterScopedFeatureHandler.
+// Check the length with:
+//     len(mockedSSHAuthInterface.AddClusterScopedFeatureHandlerCalls())
+func (mock *SSHAuthInterfaceMock) AddClusterScopedFeatureHandlerCalls() []struct {
+	Enabled     func() bool
+	Ctx         context.Context
+	Name        string
+	ClusterName string
+	Sync        v3.SSHAuthHandlerFunc
+} {
+	var calls []struct {
+		Enabled     func() bool
+		Ctx         context.Context
+		Name        string
+		ClusterName string
+		Sync        v3.SSHAuthHandlerFunc
+	}
+	lockSSHAuthInterfaceMockAddClusterScopedFeatureHandler.RLock()
+	calls = mock.calls.AddClusterScopedFeatureHandler
+	lockSSHAuthInterfaceMockAddClusterScopedFeatureHandler.RUnlock()
+	return calls
+}
+
+// AddClusterScopedFeatureLifecycle calls AddClusterScopedFeatureLifecycleFunc.
+func (mock *SSHAuthInterfaceMock) AddClusterScopedFeatureLifecycle(enabled func() bool, ctx context.Context, name string, clusterName string, lifecycle v3.SSHAuthLifecycle) {
+	if mock.AddClusterScopedFeatureLifecycleFunc == nil {
+		panic("SSHAuthInterfaceMock.AddClusterScopedFeatureLifecycleFunc: method is nil but SSHAuthInterface.AddClusterScopedFeatureLifecycle was just called")
+	}
+	callInfo := struct {
+		Enabled     func() bool
+		Ctx         context.Context
+		Name        string
+		ClusterName string
+		Lifecycle   v3.SSHAuthLifecycle
+	}{
+		Enabled:     enabled,
+		Ctx:         ctx,
+		Name:        name,
+		ClusterName: clusterName,
+		Lifecycle:   lifecycle,
+	}
+	lockSSHAuthInterfaceMockAddClusterScopedFeatureLifecycle.Lock()
+	mock.calls.AddClusterScopedFeatureLifecycle = append(mock.calls.AddClusterScopedFeatureLifecycle, callInfo)
+	lockSSHAuthInterfaceMockAddClusterScopedFeatureLifecycle.Unlock()
+	mock.AddClusterScopedFeatureLifecycleFunc(enabled, ctx, name, clusterName, lifecycle)
+}
+
+// AddClusterScopedFeatureLifecycleCalls gets all the calls that were made to AddClusterScopedFeatureLifecycle.
+// Check the length with:
+//     len(mockedSSHAuthInterface.AddClusterScopedFeatureLifecycleCalls())
+func (mock *SSHAuthInterfaceMock) AddClusterScopedFeatureLifecycleCalls() []struct {
+	Enabled     func() bool
+	Ctx         context.Context
+	Name        string
+	ClusterName string
+	Lifecycle   v3.SSHAuthLifecycle
+} {
+	var calls []struct {
+		Enabled     func() bool
+		Ctx         context.Context
+		Name        string
+		ClusterName string
+		Lifecycle   v3.SSHAuthLifecycle
+	}
+	lockSSHAuthInterfaceMockAddClusterScopedFeatureLifecycle.RLock()
+	calls = mock.calls.AddClusterScopedFeatureLifecycle
+	lockSSHAuthInterfaceMockAddClusterScopedFeatureLifecycle.RUnlock()
+	return calls
+}
+
 // AddClusterScopedHandler calls AddClusterScopedHandlerFunc.
 func (mock *SSHAuthInterfaceMock) AddClusterScopedHandler(ctx context.Context, name string, clusterName string, sync v3.SSHAuthHandlerFunc) {
 	if mock.AddClusterScopedHandlerFunc == nil {
@@ -847,6 +1145,92 @@ func (mock *SSHAuthInterfaceMock) AddClusterScopedLifecycleCalls() []struct {
 	lockSSHAuthInterfaceMockAddClusterScopedLifecycle.RLock()
 	calls = mock.calls.AddClusterScopedLifecycle
 	lockSSHAuthInterfaceMockAddClusterScopedLifecycle.RUnlock()
+	return calls
+}
+
+// AddFeatureHandler calls AddFeatureHandlerFunc.
+func (mock *SSHAuthInterfaceMock) AddFeatureHandler(enabled func() bool, ctx context.Context, name string, sync v3.SSHAuthHandlerFunc) {
+	if mock.AddFeatureHandlerFunc == nil {
+		panic("SSHAuthInterfaceMock.AddFeatureHandlerFunc: method is nil but SSHAuthInterface.AddFeatureHandler was just called")
+	}
+	callInfo := struct {
+		Enabled func() bool
+		Ctx     context.Context
+		Name    string
+		Sync    v3.SSHAuthHandlerFunc
+	}{
+		Enabled: enabled,
+		Ctx:     ctx,
+		Name:    name,
+		Sync:    sync,
+	}
+	lockSSHAuthInterfaceMockAddFeatureHandler.Lock()
+	mock.calls.AddFeatureHandler = append(mock.calls.AddFeatureHandler, callInfo)
+	lockSSHAuthInterfaceMockAddFeatureHandler.Unlock()
+	mock.AddFeatureHandlerFunc(enabled, ctx, name, sync)
+}
+
+// AddFeatureHandlerCalls gets all the calls that were made to AddFeatureHandler.
+// Check the length with:
+//     len(mockedSSHAuthInterface.AddFeatureHandlerCalls())
+func (mock *SSHAuthInterfaceMock) AddFeatureHandlerCalls() []struct {
+	Enabled func() bool
+	Ctx     context.Context
+	Name    string
+	Sync    v3.SSHAuthHandlerFunc
+} {
+	var calls []struct {
+		Enabled func() bool
+		Ctx     context.Context
+		Name    string
+		Sync    v3.SSHAuthHandlerFunc
+	}
+	lockSSHAuthInterfaceMockAddFeatureHandler.RLock()
+	calls = mock.calls.AddFeatureHandler
+	lockSSHAuthInterfaceMockAddFeatureHandler.RUnlock()
+	return calls
+}
+
+// AddFeatureLifecycle calls AddFeatureLifecycleFunc.
+func (mock *SSHAuthInterfaceMock) AddFeatureLifecycle(enabled func() bool, ctx context.Context, name string, lifecycle v3.SSHAuthLifecycle) {
+	if mock.AddFeatureLifecycleFunc == nil {
+		panic("SSHAuthInterfaceMock.AddFeatureLifecycleFunc: method is nil but SSHAuthInterface.AddFeatureLifecycle was just called")
+	}
+	callInfo := struct {
+		Enabled   func() bool
+		Ctx       context.Context
+		Name      string
+		Lifecycle v3.SSHAuthLifecycle
+	}{
+		Enabled:   enabled,
+		Ctx:       ctx,
+		Name:      name,
+		Lifecycle: lifecycle,
+	}
+	lockSSHAuthInterfaceMockAddFeatureLifecycle.Lock()
+	mock.calls.AddFeatureLifecycle = append(mock.calls.AddFeatureLifecycle, callInfo)
+	lockSSHAuthInterfaceMockAddFeatureLifecycle.Unlock()
+	mock.AddFeatureLifecycleFunc(enabled, ctx, name, lifecycle)
+}
+
+// AddFeatureLifecycleCalls gets all the calls that were made to AddFeatureLifecycle.
+// Check the length with:
+//     len(mockedSSHAuthInterface.AddFeatureLifecycleCalls())
+func (mock *SSHAuthInterfaceMock) AddFeatureLifecycleCalls() []struct {
+	Enabled   func() bool
+	Ctx       context.Context
+	Name      string
+	Lifecycle v3.SSHAuthLifecycle
+} {
+	var calls []struct {
+		Enabled   func() bool
+		Ctx       context.Context
+		Name      string
+		Lifecycle v3.SSHAuthLifecycle
+	}
+	lockSSHAuthInterfaceMockAddFeatureLifecycle.RLock()
+	calls = mock.calls.AddFeatureLifecycle
+	lockSSHAuthInterfaceMockAddFeatureLifecycle.RUnlock()
 	return calls
 }
 
