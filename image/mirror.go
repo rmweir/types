@@ -22,7 +22,6 @@ func Mirror(image string) string {
 	image = strings.Replace(image, "alpine/git", "rancher/alpine-git", 1)
 	image = strings.Replace(image, "prom/", "rancher/prom-", 1)
 	image = strings.Replace(image, "quay.io/pires", "rancher", 1)
-	image = strings.Replace(image, "coredns/", "rancher/coredns-", 1)
 	image = strings.Replace(image, "minio/", "rancher/minio-", 1)
 
 	Mirrors[image] = orig
